@@ -24,6 +24,9 @@ COPY scripts $BUILD_SCRIPTS_DIR
 RUN chmod -R 750 $BUILD_SCRIPTS_DIR
 
 # Define all --build-arg options
+ARG METEOR_VERSION
+ENV METEOR_VERSION ${METEOR_VERSION:-1.8.1}
+
 ARG APT_GET_INSTALL
 ENV APT_GET_INSTALL $APT_GET_INSTALL
 
@@ -49,8 +52,10 @@ ENV TOOL_NODE_FLAGS $TOOL_NODE_FLAGS
 # optionally custom apt dependencies at app build time
 RUN if [ "$APT_GET_INSTALL" ]; then apt-get update && apt-get install -y $APT_GET_INSTALL; fi
 
+COPY launchpad.conf $APP_SOURCE_DIR/
+
 # install all common dependencies
-RUN mkdir -p $APP_SOURCE_DIR && cd $APP_SOURCE_DIR && \
+RUN cd $APP_SOURCE_DIR && \
   $BUILD_SCRIPTS_DIR/install-deps.sh && \
   $BUILD_SCRIPTS_DIR/install-node.sh
 
@@ -58,14 +63,14 @@ RUN mkdir -p $APP_SOURCE_DIR && cd $APP_SOURCE_DIR && \
 RUN cd $APP_SOURCE_DIR && \
   $BUILD_SCRIPTS_DIR/install-phantom.sh && \
   $BUILD_SCRIPTS_DIR/install-graphicsmagick.sh && \
-  $BUILD_SCRIPTS_DIR/install-mongo.sh
+  $BUILD_SCRIPTS_DIR/install-mongo.sh && \
+  $BUILD_SCRIPTS_DIR/install-meteor.sh
 
 # copy the app to the container
 ONBUILD COPY . $APP_SOURCE_DIR
 
 # build the app
 ONBUILD RUN  cd $APP_SOURCE_DIR && \
-  $BUILD_SCRIPTS_DIR/install-meteor.sh && \
   $BUILD_SCRIPTS_DIR/build-meteor.sh && \
   $BUILD_SCRIPTS_DIR/post-build-cleanup.sh
 
