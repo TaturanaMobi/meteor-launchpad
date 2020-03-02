@@ -13,7 +13,7 @@ else
 
   # read in the release version in the app
   # METEOR_VERSION=$(head $APP_SOURCE_DIR/.meteor/release | cut -d "@" -f 2)
-  # METEOR_VERSION=${METEOR_VERSION:-1.8.1}
+  METEOR_VERSION=${METEOR_VERSION:-1.9.2}
 
   # set the release version in the install script
   sed -i.bak "s/RELEASE=.*/RELEASE=\"$METEOR_VERSION\"/g" /tmp/install_meteor.sh
